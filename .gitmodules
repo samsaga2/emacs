@@ -1,0 +1,3 @@
+[submodule "vendors/sdz80-mode"]
+	path = vendors/sdz80-mode
+	url = https://github.com/patxoca/sdz80-mode
