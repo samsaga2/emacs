@@ -4,25 +4,21 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
-(setq ring-bell-function 'ignore)
-(setq custom-file "custom.el")
+(setq ring-bell-function 'ignore
+      custom-file "custom.el"
+      inhibit-startup-screen t
+      inhibit-startup-echo-area-message t
+      inhibit-startup-message t
+      backup-inhibited t
+      auto-save-default nil
+      initial-scratch-message "")
 
 (column-number-mode t)
 (size-indication-mode t)
 
-(setq inhibit-startup-screen t
-      inhibit-startup-echo-area-message t
-      inhibit-startup-message t)
-
-(setq backup-inhibited t)
-(setq auto-save-default nil)
-
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
-(setq-default tab-width 4
-              indent-tabs-mode nil)
-
-(setq initial-scratch-message "")
+(setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
     (set-frame-font "Consolas 12" nil t)
@@ -90,7 +86,7 @@
   :config
   ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
-        `((".*" . ,temporary-file-directory)))
+	`((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t)
   (evil-leader/set-key
     "au" 'undo-tree-visualize))
@@ -98,7 +94,7 @@
 (use-package flyspell
   :config
   (setq ispell-program-name "aspell" ; use aspell instead of ispell
-        ispell-extra-args '("--sug-mode=ultra"))
+	ispell-extra-args '("--sug-mode=ultra"))
   (add-hook 'text-mode-hook #'flyspell-mode)
   (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
@@ -171,8 +167,8 @@
   :commands lsp
   :config
   (setq lsp-disabled-clients '(clangd)
-        lsp-enable-file-watchers nil
-        lsp-enable-snippet nil)
+	lsp-enable-file-watchers nil
+	lsp-enable-snippet nil)
   (add-hook 'prog-mode-hook #'lsp))
 
 (use-package lsp-ui
@@ -186,8 +182,8 @@
   (push 'company-lsp company-backends)
   ;; Disable client-side cache because the LSP server does a better job.
   (setq company-transformers nil
-        company-lsp-async t
-        company-lsp-cache-candidates nil))
+	company-lsp-async t
+	company-lsp-cache-candidates nil))
 
 (use-package lsp-ivy
   :ensure t
@@ -223,11 +219,11 @@
   :ensure t
   :config
   (setq telephone-line-primary-left-separator 'telephone-line-gradient
-        telephone-line-secondary-left-separator 'telephone-line-nil
-        telephone-line-primary-right-separator 'telephone-line-gradient
-        telephone-line-secondary-right-separator 'telephone-line-nil)
+	telephone-line-secondary-left-separator 'telephone-line-nil
+	telephone-line-primary-right-separator 'telephone-line-gradient
+	telephone-line-secondary-right-separator 'telephone-line-nil)
   (setq telephone-line-height 24
-        telephone-line-evil-use-short-tag t)
+	telephone-line-evil-use-short-tag t)
   (telephone-line-mode 1))
 
 (use-package minimal-theme
@@ -248,14 +244,12 @@
   :ensure t
   :config
   (setq auto-package-update-delete-old-versions t
-        auto-package-update-interval 4)
+	auto-package-update-interval 4)
   (auto-package-update-maybe))
 
 ;; sdz80
 (add-to-list 'load-path "~/.emacs.d/vendors/sdz80-mode")
 (load "sdz80-mode")
-(add-hook 'sdz80-mode
-          (setq tab-width 8))
 (add-to-list 'auto-mode-alist '("\\.asm" . sdz80-mode))
 
 (load "~/.emacs.d/custom.el")
