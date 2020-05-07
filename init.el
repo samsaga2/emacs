@@ -1,9 +1,15 @@
 ;; global
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
+(column-number-mode t)
+(size-indication-mode t)
+(fset 'yes-or-no-p 'y-or-n-p)
+(global-auto-revert-mode t)
+
 (setq ring-bell-function 'ignore
       custom-file "custom.el"
       inhibit-startup-screen t
@@ -13,11 +19,6 @@
       auto-save-default nil
       initial-scratch-message "")
 
-(column-number-mode t)
-(size-indication-mode t)
-
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-auto-revert-mode t)
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
@@ -43,7 +44,8 @@
 (use-package evil
   :ensure t
   :init
-  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-u-scroll t
+        evil-want-keybinding nil)
   :config
   (evil-mode))
 
@@ -94,7 +96,8 @@
 (use-package flyspell
   :config
   (setq ispell-program-name "aspell" ; use aspell instead of ispell
-	ispell-extra-args '("--sug-mode=ultra"))
+	ispell-extra-args '("--sug-mode=ultra")
+        flyspell-default-dictionary "en")
   (add-hook 'text-mode-hook #'flyspell-mode)
   (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
@@ -131,10 +134,12 @@
     "fr" 'counsel-recentf
     "gs" 'magit-status
     "wm" 'delete-other-windows
-    "wv" 'split-window-vertically
-    "wh" 'split-window-horizontally
+    "wh" 'split-window-vertically
+    "wv" 'split-window-horizontally
     "wm" 'delete-other-windows
-    "x"  'counsel-M-x))
+    "x"  'counsel-M-x
+    "hf" 'describe-function
+    "hv" 'describe-variable))
 
 (use-package linum-relative
   :ensure t
@@ -156,6 +161,9 @@
     "pc" 'projectile-compile-project
     "pf" 'projectile-find-file
     "pi" 'projectile-invalidate-cache
+    "pg" 'projectile-grep
+    "ft" 'projectile-find-tag
+    "pr" 'projectile-regenerate-tags
     "fo" 'projectile-find-other-file))
 
 (use-package ccls
@@ -240,11 +248,18 @@
   (setq-default evil-escape-key-sequence "jk")
   (evil-escape-mode))
 
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
+
 (use-package auto-package-update
   :ensure t
   :config
   (setq auto-package-update-delete-old-versions t
-	auto-package-update-interval 4)
+	auto-package-update-interval 30
+        auto-package-update-hide-results t)
   (auto-package-update-maybe))
 
 ;; sdz80
