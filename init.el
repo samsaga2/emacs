@@ -23,7 +23,8 @@
 
 (if (eq system-type 'windows-nt)
     (set-frame-font "Consolas 12" nil t)
-  (set-frame-font "Monospace 12" nil t))
+  (set-frame-font "Ubuntu Mono 14" nil t))
+
 
 ;; utf-8
 (prefer-coding-system 'utf-8)
@@ -56,6 +57,7 @@
   (which-key-mode +1))
 
 (use-package magit
+  :defer t
   :ensure t)
 
 (use-package ivy
@@ -84,6 +86,7 @@
   (global-set-key (kbd "<f2> u") 'counsel-unicode-char))
 
 (use-package undo-tree
+  :defer t
   :ensure t
   :config
   ;; autosave the undo-tree history
@@ -107,16 +110,19 @@
 (use-package company
   :ensure t
   :config
-  (setq company-idle-delay 0.1)
-  (setq company-show-numbers t)
-  (setq company-tooltip-limit 10)
-  (setq company-minimum-prefix-length 1)
-  (setq company-tooltip-align-annotations t)
-  (setq company-tooltip-flip-when-above t)
+  (setq company-idle-delay 0.1
+        company-show-numbers t
+        company-tooltip-limit 1
+        company-minimum-prefix-length 1
+        company-tooltip-align-annotations t
+        company-tooltip-flip-when-above t)
   (global-company-mode))
 
 (use-package expand-region
-  :ensure t)
+  :ensure t
+  :config
+  (evil-leader/set-key
+    "v" 'er/expand-region))
 
 (use-package evil-leader
   :ensure t
@@ -148,6 +154,7 @@
   (linum-relative-global-mode))
 
 (use-package projectile
+  :defer t
   :ensure t
   :init
   (setq projectile-completion-system 'ivy)
@@ -167,9 +174,11 @@
     "fo" 'projectile-find-other-file))
 
 (use-package ccls
+  :defer t
   :ensure t)
 
 (use-package lsp-mode
+  :defer t
   :ensure t
   :init (setq lsp-keymap-prefix "s-l")
   :commands lsp
@@ -180,6 +189,7 @@
   (add-hook 'prog-mode-hook #'lsp))
 
 (use-package lsp-ui
+  :defer t
   :ensure t
   :commands lsp-ui-mode)
 
@@ -194,17 +204,21 @@
 	company-lsp-cache-candidates nil))
 
 (use-package lsp-ivy
+  :defer t
   :ensure t
   :commands lsp-ivy-workspace-symbol)
 
 (use-package lsp-treemacs
+  :defer t
   :ensure t
   :commands lsp-treemacs-errors-list)
 
 (use-package dap-mode
+  :defer t
   :ensure t)
 
 (use-package neotree
+  :defer t
   :ensure t
   :config
   (setq projectile-switch-project-action 'neotree-projectile-action)
@@ -221,6 +235,7 @@
   (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle))
 
 (use-package cmake-mode
+  :defer t
   :ensure t)
 
 (use-package telephone-line
