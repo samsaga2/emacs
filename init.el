@@ -145,7 +145,8 @@
     "wm" 'delete-other-windows
     "x"  'counsel-M-x
     "hf" 'describe-function
-    "hv" 'describe-variable))
+    "hv" 'describe-variable
+    "cc" 'comment-or-uncomment-region))
 
 (use-package linum-relative
   :ensure t
