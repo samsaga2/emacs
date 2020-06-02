@@ -155,7 +155,6 @@
   (linum-relative-global-mode))
 
 (use-package projectile
-  :defer t
   :ensure t
   :init
   (setq projectile-completion-system 'ivy)
@@ -219,7 +218,6 @@
   :ensure t)
 
 (use-package neotree
-  :defer t
   :ensure t
   :config
   (setq projectile-switch-project-action 'neotree-projectile-action)
