@@ -255,7 +255,7 @@
   :config
   (if (display-graphic-p)
       (load-theme 'minimal-light t)
-    (load-theme 'minimal))
+    (load-theme 'minimal)))
 
 (use-package evil-magit
   :ensure t)
