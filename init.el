@@ -1,3 +1,11 @@
+;; package init
+(package-initialize)
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(when (not (package-installed-p 'use-package))
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 ;; global
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -32,14 +40,6 @@
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-
-;; package init
-(package-initialize)
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-
-(when (not (package-installed-p 'use-package))
-  (package-install 'use-package))
 
 ;; packages
 (use-package evil
@@ -146,7 +146,9 @@
     "x"  'counsel-M-x
     "hf" 'describe-function
     "hv" 'describe-variable
-    "cc" 'comment-or-uncomment-region))
+    "cc" 'comment-or-uncomment-region
+    "ee" 'next-error
+    "ep" 'previous-error))
 
 (use-package linum-relative
   :ensure t
@@ -251,7 +253,9 @@
 (use-package minimal-theme
   :ensure t
   :config
-  (load-theme 'minimal-light t))
+  (if (display-graphic-p)
+      (load-theme 'minimal-light t)
+    (load-theme 'minimal))
 
 (use-package evil-magit
   :ensure t)
