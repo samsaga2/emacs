@@ -124,6 +124,10 @@
   (evil-leader/set-key
     "v" 'er/expand-region))
 
+(defun save-all ()
+  (interactive)
+  (save-some-buffers t))
+
 (use-package evil-leader
   :ensure t
   :init
@@ -136,7 +140,8 @@
     "bd" 'kill-current-buffer
     "bp" 'switch-to-prev-buffer
     "bn" 'switch-to-next-buffer
-    "fs" 'save-buffer
+    "ss" 'save-buffer
+    "sa" 'save-all
     "fr" 'counsel-recentf
     "gs" 'magit-status
     "wm" 'delete-other-windows
@@ -148,7 +153,10 @@
     "hv" 'describe-variable
     "cc" 'comment-or-uncomment-region
     "ee" 'next-error
-    "ep" 'previous-error))
+    "ep" 'previous-error
+    "eb" 'eval-buffer
+    "hk" 'describe-key
+    "hv" 'describe-variable))
 
 (use-package linum-relative
   :ensure t
