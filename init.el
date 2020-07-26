@@ -31,7 +31,7 @@
 
 (if (eq system-type 'windows-nt)
     (set-frame-font "Consolas 12" nil t)
-  (set-frame-font "Ubuntu Mono 14" nil t))
+  (set-frame-font "Source Code Pro 11" nil t))
 
 
 ;; utf-8
