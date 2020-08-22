@@ -33,6 +33,8 @@
     (set-frame-font "Consolas 12" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
 
+(setq custom-file "~/.emacs.d/custom.el")
+
 
 ;; utf-8
 (prefer-coding-system 'utf-8)
