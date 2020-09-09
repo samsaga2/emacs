@@ -1,7 +1,11 @@
 ;; package init
+(setq package-check-signature nil)
 (package-initialize)
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages") t)
+
 (when (not (package-installed-p 'use-package))
   (package-refresh-contents)
   (package-install 'use-package))
@@ -25,15 +29,26 @@
       inhibit-startup-message t
       backup-inhibited t
       auto-save-default nil
-      initial-scratch-message "")
+      initial-scratch-message ""
+      compilation-scroll-output 'first-error)
 
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
-    (set-frame-font "Consolas 12" nil t)
+    (set-frame-font "Consolas 11" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
 
 (setq custom-file "~/.emacs.d/custom.el")
+
+(add-to-list 'auto-mode-alist '("\\.qss\\'" . css-mode))
+
+
+(require 'compile)
+(add-hook 'c-mode-common-hook
+          (lambda()
+            ;; bunch of settings for C-mode 
+            (add-to-list 'compilation-error-regexp-alist '("^\\(.*?\\)(\\([0-9]+\\),\\([0-9]+\\)):" 1 2 3))
+            ))
 
 
 ;; utf-8
@@ -102,7 +117,7 @@
   :config
   (setq ispell-program-name "aspell" ; use aspell instead of ispell
 	ispell-extra-args '("--sug-mode=ultra")
-        flyspell-default-dictionary "en")
+        flyspell-default-dictionary "english")
   (add-hook 'text-mode-hook #'flyspell-mode)
   (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
@@ -137,6 +152,7 @@
   :config
   (evil-leader/set-leader "<SPC>")
   (setq evil-leader/in-all-states t)
+  (global-set-key [f8] 'next-error)
   (evil-leader/set-key
     "bb" 'ivy-switch-buffer
     "bd" 'kill-current-buffer
@@ -158,7 +174,8 @@
     "ep" 'previous-error
     "eb" 'eval-buffer
     "hk" 'describe-key
-    "hv" 'describe-variable))
+    "hv" 'describe-variable
+    "<SPC>" 'avy-goto-word-or-subword-1))
 
 (use-package linum-relative
   :ensure t
@@ -171,37 +188,30 @@
   :init
   (setq projectile-completion-system 'ivy)
   :config
+  (projectile-global-mode)
   (setq projectile-indexing-method 'alien)
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-  (projectile-mode +1)
+  (global-set-key [f5] 'projectile-run-project)
+  (global-set-key [f9] 'projectile-compile-project)
   (evil-leader/set-key
     "pa" 'projectile-add-known-project
     "pp" 'projectile-switch-project
     "pc" 'projectile-compile-project
+    "pr" 'projectile-run-project
     "pf" 'projectile-find-file
     "pi" 'projectile-invalidate-cache
     "pg" 'projectile-grep
     "ft" 'projectile-find-tag
-    "pr" 'projectile-regenerate-tags
+    "pt" 'projectile-regenerate-tags
     "fo" 'projectile-find-other-file))
 
-(use-package ccls
-  :defer t
-  :ensure t)
-
 (use-package lsp-mode
-  :defer t
-  :ensure t
-  :init (setq lsp-keymap-prefix "s-l")
   :commands lsp
-  :config
-  (setq lsp-disabled-clients '(clangd)
-	lsp-enable-file-watchers nil
-	lsp-enable-snippet nil)
-  (add-hook 'prog-mode-hook #'lsp))
+  :ensure t
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
 
 (use-package lsp-ui
-  :defer t
   :ensure t
   :commands lsp-ui-mode)
 
@@ -232,9 +242,11 @@
 (use-package neotree
   :ensure t
   :config
-  (setq projectile-switch-project-action 'neotree-projectile-action)
+  (setq projectile-switch-project-action 'neotree-projectile-action
+        neo-theme 'arrow
+        neo-smart-open t)
   (evil-leader/set-key
-    "pt" 'neotree-toggle)
+    "pt" 'neotree-projectile-action)
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
   (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
@@ -249,16 +261,19 @@
   :defer t
   :ensure t)
 
-(use-package telephone-line
-  :ensure t
-  :config
-  (setq telephone-line-primary-left-separator 'telephone-line-gradient
-	telephone-line-secondary-left-separator 'telephone-line-nil
-	telephone-line-primary-right-separator 'telephone-line-gradient
-	telephone-line-secondary-right-separator 'telephone-line-nil)
-  (setq telephone-line-height 24
-	telephone-line-evil-use-short-tag t)
-  (telephone-line-mode 1))
+;; (use-package telephone-line
+;;   :ensure t
+;;   :config
+;;   (setq telephone-line-primary-left-separator 'telephone-line-gradient
+;; 	telephone-line-secondary-left-separator 'telephone-line-nil
+;; 	telephone-line-primary-right-separator 'telephone-line-gradient
+;; 	telephone-line-secondary-right-separator 'telephone-line-nil)
+;;   (setq telephone-line-height 24
+;; 	telephone-line-evil-use-short-tag t)
+;;   (telephone-line-mode 1))
+
+(use-package simple-modeline
+  :hook (after-init . simple-modeline-mode))
 
 (use-package minimal-theme
   :ensure t
@@ -289,6 +304,35 @@
 	auto-package-update-interval 30
         auto-package-update-hide-results t)
   (auto-package-update-maybe))
+
+(use-package clang-format
+  :ensure t
+  :defer t)
+
+(use-package clang-format+
+  :ensure t
+  :defer t
+  :hook ((c-mode c++-mode objc-mode) .
+         #'clang-format+-mode))
+  
+(use-package winum
+  :ensure t
+  :init
+  (setq winum-keymap
+        (let ((map (make-sparse-keymap)))
+          (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+          (define-key map (kbd "M-1") 'winum-select-window-1)
+          (define-key map (kbd "M-2") 'winum-select-window-2)
+          (define-key map (kbd "M-3") 'winum-select-window-3)
+          (define-key map (kbd "M-4") 'winum-select-window-4)
+          (define-key map (kbd "M-5") 'winum-select-window-5)
+          (define-key map (kbd "M-6") 'winum-select-window-6)
+          (define-key map (kbd "M-7") 'winum-select-window-7)
+          (define-key map (kbd "M-8") 'winum-select-window-8)
+          (define-key map (kbd "M-9") 'winum-select-window-9)
+          map))
+  :config
+  (winum-mode))
 
 ;; sdz80
 (add-to-list 'load-path "~/.emacs.d/vendors/sdz80-mode")
