@@ -21,6 +21,7 @@
 (size-indication-mode t)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
+(global-hl-line-mode 1)
 
 (setq ring-bell-function 'ignore
       custom-file "custom.el"
@@ -30,15 +31,15 @@
       backup-inhibited t
       auto-save-default nil
       initial-scratch-message ""
-      compilation-scroll-output 'first-error)
+      compilation-scroll-output 'first-error
+      custom-file "~/.emacs.d/custom.el"
+      c-basic-offset 4)
 
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
-    (set-frame-font "Consolas 11" nil t)
+    (set-frame-font "Consolas 10" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
-
-(setq custom-file "~/.emacs.d/custom.el")
 
 (add-to-list 'auto-mode-alist '("\\.qss\\'" . css-mode))
 
@@ -65,7 +66,9 @@
   (setq evil-want-C-u-scroll t
         evil-want-keybinding nil)
   :config
-  (evil-mode))
+  (evil-mode)
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+  (setq-default evil-symbol-word-search t))
 
 (use-package which-key
   :ensure t
@@ -80,11 +83,16 @@
 (use-package ivy
   :ensure t
   :config
-  (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
+  ;; (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t)
   (global-set-key (kbd "C-c C-r") 'ivy-resume)
   (global-set-key (kbd "<f6>") 'ivy-resume))
+
+(use-package ivy-prescient
+  :ensure t
+  :config
+  (ivy-prescient-mode 1))
 
 (use-package swiper
   :ensure t
@@ -175,6 +183,7 @@
     "eb" 'eval-buffer
     "hk" 'describe-key
     "hv" 'describe-variable
+    "fd" 'xref-find-definitions
     "<SPC>" 'avy-goto-word-or-subword-1))
 
 (use-package linum-relative
@@ -198,11 +207,12 @@
     "pp" 'projectile-switch-project
     "pc" 'projectile-compile-project
     "pr" 'projectile-run-project
+    "pR" 'projectile-test-project
     "pf" 'projectile-find-file
     "pi" 'projectile-invalidate-cache
     "pg" 'projectile-grep
     "ft" 'projectile-find-tag
-    "pt" 'projectile-regenerate-tags
+    "pT" 'projectile-regenerate-tags
     "fo" 'projectile-find-other-file))
 
 (use-package lsp-mode
@@ -225,11 +235,6 @@
 	company-lsp-async t
 	company-lsp-cache-candidates nil))
 
-(use-package lsp-ivy
-  :defer t
-  :ensure t
-  :commands lsp-ivy-workspace-symbol)
-
 (use-package lsp-treemacs
   :defer t
   :ensure t
@@ -244,7 +249,10 @@
   :config
   (setq projectile-switch-project-action 'neotree-projectile-action
         neo-theme 'arrow
-        neo-smart-open t)
+        neo-smart-open t
+        neo-window-width 50
+        neo-window-fixed-size nil
+        neo-autorefresh t)
   (evil-leader/set-key
     "pt" 'neotree-projectile-action)
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
@@ -261,26 +269,17 @@
   :defer t
   :ensure t)
 
-;; (use-package telephone-line
-;;   :ensure t
-;;   :config
-;;   (setq telephone-line-primary-left-separator 'telephone-line-gradient
-;; 	telephone-line-secondary-left-separator 'telephone-line-nil
-;; 	telephone-line-primary-right-separator 'telephone-line-gradient
-;; 	telephone-line-secondary-right-separator 'telephone-line-nil)
-;;   (setq telephone-line-height 24
-;; 	telephone-line-evil-use-short-tag t)
-;;   (telephone-line-mode 1))
-
-(use-package simple-modeline
-  :hook (after-init . simple-modeline-mode))
-
-(use-package minimal-theme
+(use-package smart-mode-line
   :ensure t
   :config
-  (if (display-graphic-p)
-      (load-theme 'minimal-light t)
-    (load-theme 'minimal)))
+  (setq sml/theme 'light
+        sml/no-confirm-load-theme t)
+  (sml/setup))
+
+(use-package tao-theme
+  :ensure t
+  :config
+  (load-theme 'berrys t))
 
 (use-package evil-magit
   :ensure t)
