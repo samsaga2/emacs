@@ -10,18 +10,24 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+;; performance improvements
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024))
+
 ;; global
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 (menu-bar-mode -1)
-(toggle-scroll-bar -1)
+(when (fboundp 'toggle-scroll-bar)
+  (toggle-scroll-bar -1)
+  (global-hl-line-mode 0))
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (column-number-mode t)
 (size-indication-mode t)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
-(global-hl-line-mode 1)
+(load-theme 'tango t)
 
 (setq ring-bell-function 'ignore
       custom-file "custom.el"
@@ -38,7 +44,7 @@
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
-    (set-frame-font "Consolas 10" nil t)
+    (set-frame-font "Consolas 11" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
 
 (add-to-list 'auto-mode-alist '("\\.qss\\'" . css-mode))
@@ -143,6 +149,10 @@
         company-tooltip-flip-when-above t)
   (global-company-mode))
 
+;; (use-package company-box
+;;   :ensure t
+;;   :hook (company-mode . company-box-mode))
+
 (use-package expand-region
   :ensure t
   :config
@@ -168,6 +178,7 @@
     "bn" 'switch-to-next-buffer
     "ss" 'save-buffer
     "sa" 'save-all
+    "eb" 'eval-buffer
     "fr" 'counsel-recentf
     "gs" 'magit-status
     "wm" 'delete-other-windows
@@ -183,7 +194,8 @@
     "eb" 'eval-buffer
     "hk" 'describe-key
     "hv" 'describe-variable
-    "fd" 'xref-find-definitions
+    "fd" 'lsp-find-definition
+    "fr" 'lsp-find-references
     "<SPC>" 'avy-goto-word-or-subword-1))
 
 (use-package linum-relative
@@ -218,11 +230,23 @@
 (use-package lsp-mode
   :commands lsp
   :ensure t
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
+  :config
+  (setq lsp-completion-provider :capf)
+  :hook ((;; c-mode c++-mode objc-mode
+                 prog-mode) .
+         (lambda ()
+           (require 'ccls)
+           (lsp)
+           (lsp-headerline-breadcrumb-mode)
+           ;(lsp-ui-sideline-mode)
+           (lsp-ui-peek-mode)
+           (origami-mode)
+           )))
 
 (use-package lsp-ui
   :ensure t
+  :config
+  (setq lsp-idle-delay 0.500)
   :commands lsp-ui-mode)
 
 (use-package company-lsp
@@ -233,7 +257,10 @@
   ;; Disable client-side cache because the LSP server does a better job.
   (setq company-transformers nil
 	company-lsp-async t
-	company-lsp-cache-candidates nil))
+	company-lsp-cache-candidates nil
+        company-idle-delay 0.0
+        company-minimum-prefix-length 1
+        ))
 
 (use-package lsp-treemacs
   :defer t
@@ -276,10 +303,15 @@
         sml/no-confirm-load-theme t)
   (sml/setup))
 
-(use-package tao-theme
-  :ensure t
-  :config
-  (load-theme 'berrys t))
+;; (use-package tao-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'berrys t))
+
+;; (use-package solarized-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'solarized-light t))
 
 (use-package evil-magit
   :ensure t)
@@ -332,6 +364,21 @@
           map))
   :config
   (winum-mode))
+
+(use-package origami
+  :ensure t
+  :config
+  (global-origami-mode))
+
+(use-package evil-mc
+  :ensure t
+  :config
+  (global-evil-mc-mode 1)
+  (evil-leader/set-key
+    "mm" 'evil-mc-make-all-cursors
+    "mu" 'evil-mc-undo-all-cursors
+    "mb" 'evil-mc-make-cursor-in-visual-selection-beg
+    "me" 'evil-mc-make-cursor-in-visual-selection-end))
 
 ;; sdz80
 (add-to-list 'load-path "~/.emacs.d/vendors/sdz80-mode")
