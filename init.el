@@ -239,7 +239,7 @@
            (lsp)
            (lsp-headerline-breadcrumb-mode)
            ;(lsp-ui-sideline-mode)
-           (lsp-ui-peek-mode)
+           ;; (lsp-ui-peek-mode)
            (origami-mode)
            )))
 
@@ -303,15 +303,11 @@
         sml/no-confirm-load-theme t)
   (sml/setup))
 
-;; (use-package tao-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'berrys t))
-
-;; (use-package solarized-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'solarized-light t))
+(use-package mini-modeline
+  :ensure t
+  :after smart-mode-line
+  :config
+  (mini-modeline-mode t))
 
 (use-package evil-magit
   :ensure t)
