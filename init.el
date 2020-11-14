@@ -39,7 +39,8 @@
       initial-scratch-message ""
       compilation-scroll-output 'first-error
       custom-file "~/.emacs.d/custom.el"
-      c-basic-offset 4)
+      c-basic-offset 4
+      scroll-margin 8)
 
 (setq-default indent-tabs-mode nil)
 
@@ -83,7 +84,6 @@
   (which-key-mode +1))
 
 (use-package magit
-  :defer t
   :ensure t)
 
 (use-package ivy
@@ -117,7 +117,6 @@
   (global-set-key (kbd "<f2> u") 'counsel-unicode-char))
 
 (use-package undo-tree
-  :defer t
   :ensure t
   :config
   ;; autosave the undo-tree history
@@ -125,7 +124,9 @@
 	`((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t)
   (evil-leader/set-key
-    "au" 'undo-tree-visualize))
+    "u" 'undo-tree-undo
+    "au" 'undo-tree-visualize)
+  (global-undo-tree-mode))
 
 (use-package flyspell
   :config
@@ -143,7 +144,7 @@
   :config
   (setq company-idle-delay 0.1
         company-show-numbers t
-        company-tooltip-limit 1
+        company-tooltip-limit 10
         company-minimum-prefix-length 1
         company-tooltip-align-annotations t
         company-tooltip-flip-when-above t)
@@ -237,9 +238,9 @@
          (lambda ()
            (require 'ccls)
            (lsp)
-           (lsp-headerline-breadcrumb-mode)
-           ;(lsp-ui-sideline-mode)
-           ;; (lsp-ui-peek-mode)
+           (lsp-lens-mode 1)
+           ;;(lsp-ui-sideline-mode)
+           ;;(lsp-ui-peek-mode)
            (origami-mode)
            )))
 
@@ -254,21 +255,15 @@
   :commands company-lsp
   :config
   (push 'company-lsp company-backends)
-  ;; Disable client-side cache because the LSP server does a better job.
-  (setq company-transformers nil
-	company-lsp-async t
-	company-lsp-cache-candidates nil
+  (setq company-transformers '(company-sort-by-occurrence)
         company-idle-delay 0.0
-        company-minimum-prefix-length 1
-        ))
+        company-minimum-prefix-length 1))
 
 (use-package lsp-treemacs
-  :defer t
   :ensure t
   :commands lsp-treemacs-errors-list)
 
 (use-package dap-mode
-  :defer t
   :ensure t)
 
 (use-package neotree
@@ -283,7 +278,7 @@
   (evil-leader/set-key
     "pt" 'neotree-projectile-action)
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
+  (evil-define-key 'normal neotree-mode-map (kbd "v") 'neotree-quick-look)
   (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
   (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "g") 'neotree-refresh)
@@ -293,7 +288,6 @@
   (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle))
 
 (use-package cmake-mode
-  :defer t
   :ensure t)
 
 (use-package smart-mode-line
@@ -332,13 +326,12 @@
         auto-package-update-hide-results t)
   (auto-package-update-maybe))
 
-(use-package clang-format
-  :ensure t
-  :defer t)
+;; (use-package clang-format
+;;   :ensure t
+;;   :defer t)
 
 (use-package clang-format+
   :ensure t
-  :defer t
   :hook ((c-mode c++-mode objc-mode) .
          #'clang-format+-mode))
   
@@ -380,5 +373,26 @@
 (add-to-list 'load-path "~/.emacs.d/vendors/sdz80-mode")
 (load "sdz80-mode")
 (add-to-list 'auto-mode-alist '("\\.asm" . sdz80-mode))
+
+;; compilation window height
+(setq compilation-window-height 10)
+
+(defun create-proper-compilation-window ()
+  "Setup the *compilation* window with custom settings."
+  (when (not (get-buffer-window "*compilation*"))
+    (save-selected-window
+      (save-excursion
+        (let* ((w (split-window-vertically))
+               (h (window-height w)))
+          (select-window w)
+          (switch-to-buffer "*compilation*")
+
+          ;; Reduce window height
+          (shrink-window (- h compilation-window-height))
+
+          ;; Prevent other buffers from displaying inside
+          (set-window-dedicated-p w t))))))
+
+(add-hook 'compilation-mode-hook 'create-proper-compilation-window)
 
 (load "~/.emacs.d/custom.el")
