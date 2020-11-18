@@ -38,9 +38,10 @@
       auto-save-default nil
       initial-scratch-message ""
       compilation-scroll-output 'first-error
+      compilation-ask-about-save nil
       custom-file "~/.emacs.d/custom.el"
       c-basic-offset 4
-      scroll-margin 8)
+      scroll-margin 4)
 
 (setq-default indent-tabs-mode nil)
 
@@ -119,10 +120,10 @@
 (use-package undo-tree
   :ensure t
   :config
-  ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
-	`((".*" . ,temporary-file-directory)))
-  (setq undo-tree-auto-save-history t)
+        `((".*" . ,temporary-file-directory))
+        undo-tree-enable-undo-in-region nil
+        undo-tree-auto-save-history t)
   (evil-leader/set-key
     "u" 'undo-tree-undo
     "au" 'undo-tree-visualize)
@@ -177,10 +178,10 @@
     "bd" 'kill-current-buffer
     "bp" 'switch-to-prev-buffer
     "bn" 'switch-to-next-buffer
+    "br" 'counsel-recentf
     "ss" 'save-buffer
     "sa" 'save-all
     "eb" 'eval-buffer
-    "fr" 'counsel-recentf
     "gs" 'magit-status
     "wm" 'delete-other-windows
     "wh" 'split-window-vertically
@@ -266,26 +267,17 @@
 (use-package dap-mode
   :ensure t)
 
-(use-package neotree
+(use-package treemacs
   :ensure t
   :config
-  (setq projectile-switch-project-action 'neotree-projectile-action
-        neo-theme 'arrow
-        neo-smart-open t
-        neo-window-width 50
-        neo-window-fixed-size nil
-        neo-autorefresh t)
+  (setq treemacs-git-mode -1
+        treemacs-no-png-images t
+        treemacs-width 50)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode t)
   (evil-leader/set-key
-    "pt" 'neotree-projectile-action)
-  (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "v") 'neotree-quick-look)
-  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
-  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "g") 'neotree-refresh)
-  (evil-define-key 'normal neotree-mode-map (kbd "n") 'neotree-next-line)
-  (evil-define-key 'normal neotree-mode-map (kbd "p") 'neotree-previous-line)
-  (evil-define-key 'normal neotree-mode-map (kbd "A") 'neotree-stretch-toggle)
-  (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle))
+    "pt" 'treemacs))
 
 (use-package cmake-mode
   :ensure t)
