@@ -2,17 +2,26 @@
 (setq package-check-signature nil)
 (package-initialize)
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages") t)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
 
 (when (not (package-installed-p 'use-package))
   (package-refresh-contents)
   (package-install 'use-package))
 
-;; performance improvements
-(setq gc-cons-threshold 100000000)
-(setq read-process-output-max (* 1024 1024))
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "*** Emacs loaded in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
 
 ;; global
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -27,7 +36,7 @@
 (size-indication-mode t)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-auto-revert-mode t)
-(load-theme 'tango t)
+(show-paren-mode 1)
 
 (setq ring-bell-function 'ignore
       custom-file "custom.el"
@@ -41,15 +50,16 @@
       compilation-ask-about-save nil
       custom-file "~/.emacs.d/custom.el"
       c-basic-offset 4
-      scroll-margin 4)
+      scroll-margin 4
+      large-file-warning-threshold nil
+      fill-column 100)
 
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
-    (set-frame-font "Consolas 11" nil t)
+    ;; (set-frame-font "Consolas 12" nil t)
+    (set-frame-font "Roboto Mono 11" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
-
-(add-to-list 'auto-mode-alist '("\\.qss\\'" . css-mode))
 
 
 (require 'compile)
@@ -58,6 +68,14 @@
             ;; bunch of settings for C-mode 
             (add-to-list 'compilation-error-regexp-alist '("^\\(.*?\\)(\\([0-9]+\\),\\([0-9]+\\)):" 1 2 3))
             ))
+
+;; Keep transient cruft out of ~/.emacs.d/
+(setq user-emacs-directory "~/.cache/emacs/"
+      backup-directory-alist `(("." . ,(expand-file-name "backups" user-emacs-directory)))
+      url-history-file (expand-file-name "url/history" user-emacs-directory)
+      auto-save-list-file-prefix (expand-file-name "auto-save-list/.saves-" user-emacs-directory)
+      projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" user-emacs-directory))
+
 
 
 ;; utf-8
@@ -68,6 +86,13 @@
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
 ;; packages
+(load-theme 'tango t)
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-acario-light t))
+
 (use-package evil
   :ensure t
   :init
@@ -87,35 +112,17 @@
 (use-package magit
   :ensure t)
 
-(use-package ivy
+(use-package diff-hl
   :ensure t
   :config
-  ;; (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t
-        enable-recursive-minibuffers t)
-  (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  (global-set-key (kbd "<f6>") 'ivy-resume))
+  (global-diff-hl-mode))
 
-(use-package ivy-prescient
+(use-package selectrum
   :ensure t
   :config
-  (ivy-prescient-mode 1))
-
-(use-package swiper
-  :ensure t
-  :config
-  (global-set-key "\C-s" 'swiper))
-
-(use-package counsel
-  :ensure t
-  :config
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-  (global-set-key (kbd "<f1> l") 'counsel-find-library)
-  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-  (global-set-key (kbd "<f2> u") 'counsel-unicode-char))
+  (selectrum-mode +1)
+  (setq selectrum-prescient-mode +1
+        prescient-persist-mode +1))
 
 (use-package undo-tree
   :ensure t
@@ -151,9 +158,9 @@
         company-tooltip-flip-when-above t)
   (global-company-mode))
 
-;; (use-package company-box
-;;   :ensure t
-;;   :hook (company-mode . company-box-mode))
+(use-package company-box
+  :ensure t
+  :hook (company-mode . company-box-mode))
 
 (use-package expand-region
   :ensure t
@@ -199,6 +206,11 @@
     "fd" 'lsp-find-definition
     "fr" 'lsp-find-references
     "<SPC>" 'avy-goto-word-or-subword-1))
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
 
 (use-package linum-relative
   :ensure t
@@ -285,18 +297,23 @@
 (use-package smart-mode-line
   :ensure t
   :config
-  (setq sml/theme 'light
-        sml/no-confirm-load-theme t)
-  (sml/setup))
+  (setq sml/no-confirm-load-theme t
+        sml/mode-width 'right
+        sml/name-width 60)
+  (sml/setup)
+  (sml/apply-theme 'respectful))
 
-(use-package mini-modeline
+;; (use-package mini-modeline
+;;   :ensure t
+;;   :after smart-mode-line
+;;   :config
+;;   (mini-modeline-mode t))
+
+(use-package doom-modeline
   :ensure t
-  :after smart-mode-line
+  :init (doom-modeline-mode 1)
   :config
-  (mini-modeline-mode t))
-
-(use-package evil-magit
-  :ensure t)
+  (setq doom-modeline-height 35))
 
 (use-package evil-escape
   :ensure t
@@ -360,6 +377,17 @@
     "mu" 'evil-mc-undo-all-cursors
     "mb" 'evil-mc-make-cursor-in-visual-selection-beg
     "me" 'evil-mc-make-cursor-in-visual-selection-end))
+
+(use-package js2-mode
+  :ensure t
+  :mode (("\\.js\\'" . js2-mode)
+         ("\\.vue\\'" . js2-mode)))
+
+(use-package rjsx-mode
+  :ensure t
+  :after js2-mode
+  :mode (("\\.js\\'" . js2-mode)
+         ("\\.vue\\'" . js2-mode)))
 
 ;; sdz80
 (add-to-list 'load-path "~/.emacs.d/vendors/sdz80-mode")
