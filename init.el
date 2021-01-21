@@ -52,13 +52,14 @@
       c-basic-offset 4
       scroll-margin 4
       large-file-warning-threshold nil
-      fill-column 100)
+      fill-column 100
+      compilation-read-command nil)
 
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
-    ;; (set-frame-font "Consolas 12" nil t)
-    (set-frame-font "Roboto Mono 11" nil t)
+    ;; (set-frame-font "Roboto Mono 10" nil t)
+    (set-frame-font "Consolas 11" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
 
 
@@ -93,6 +94,9 @@
   :config
   (load-theme 'doom-acario-light t))
 
+(use-package counsel
+  :ensure t)
+
 (use-package evil
   :ensure t
   :init
@@ -123,6 +127,41 @@
   (selectrum-mode +1)
   (setq selectrum-prescient-mode +1
         prescient-persist-mode +1))
+
+(use-package evil-leader
+  :ensure t
+  :init
+  (global-evil-leader-mode)
+  :config
+  (evil-leader/set-leader "<SPC>")
+  (setq evil-leader/in-all-states t)
+  (global-set-key [f8] 'next-error)
+  (evil-leader/set-key
+    "bb" 'ivy-switch-buffer
+    "bd" 'kill-current-buffer
+    "bp" 'switch-to-prev-buffer
+    "bn" 'switch-to-next-buffer
+    "br" 'counsel-recentf
+    "ss" 'save-buffer
+    "sa" 'save-all
+    "eb" 'eval-buffer
+    "gs" 'magit-status
+    "wm" 'delete-other-windows
+    "wh" 'split-window-vertically
+    "wv" 'split-window-horizontally
+    "wm" 'delete-other-windows
+    "x"  'counsel-M-x
+    "hf" 'describe-function
+    "hv" 'describe-variable
+    "cc" 'comment-or-uncomment-region
+    "ee" 'next-error
+    "ep" 'previous-error
+    "eb" 'eval-buffer
+    "hk" 'describe-key
+    "hv" 'describe-variable
+    "fd" 'lsp-find-definition
+    "fr" 'lsp-find-references
+    "<SPC>" 'avy-goto-word-or-subword-1))
 
 (use-package undo-tree
   :ensure t
@@ -172,40 +211,13 @@
   (interactive)
   (save-some-buffers t))
 
-(use-package evil-leader
+(use-package ivy
+  :ensure t)
+
+(use-package ivy-explorer
   :ensure t
-  :init
-  (global-evil-leader-mode)
   :config
-  (evil-leader/set-leader "<SPC>")
-  (setq evil-leader/in-all-states t)
-  (global-set-key [f8] 'next-error)
-  (evil-leader/set-key
-    "bb" 'ivy-switch-buffer
-    "bd" 'kill-current-buffer
-    "bp" 'switch-to-prev-buffer
-    "bn" 'switch-to-next-buffer
-    "br" 'counsel-recentf
-    "ss" 'save-buffer
-    "sa" 'save-all
-    "eb" 'eval-buffer
-    "gs" 'magit-status
-    "wm" 'delete-other-windows
-    "wh" 'split-window-vertically
-    "wv" 'split-window-horizontally
-    "wm" 'delete-other-windows
-    "x"  'counsel-M-x
-    "hf" 'describe-function
-    "hv" 'describe-variable
-    "cc" 'comment-or-uncomment-region
-    "ee" 'next-error
-    "ep" 'previous-error
-    "eb" 'eval-buffer
-    "hk" 'describe-key
-    "hv" 'describe-variable
-    "fd" 'lsp-find-definition
-    "fr" 'lsp-find-references
-    "<SPC>" 'avy-goto-word-or-subword-1))
+  (ivy-explorer-mode 1))
 
 (use-package evil-surround
   :ensure t
@@ -245,11 +257,10 @@
   :commands lsp
   :ensure t
   :config
-  (setq lsp-completion-provider :capf)
-  :hook ((;; c-mode c++-mode objc-mode
-                 prog-mode) .
+  ;; (setq lsp-completion-provider :capf)
+  :hook ((prog-mode) .
          (lambda ()
-           (require 'ccls)
+           ;; (require 'ccls)
            (lsp)
            (lsp-lens-mode 1)
            ;;(lsp-ui-sideline-mode)
@@ -380,14 +391,18 @@
 
 (use-package js2-mode
   :ensure t
-  :mode (("\\.js\\'" . js2-mode)
-         ("\\.vue\\'" . js2-mode)))
+  :mode (("\\.js\\'" . js2-mode)))
 
 (use-package rjsx-mode
   :ensure t
   :after js2-mode
-  :mode (("\\.js\\'" . js2-mode)
-         ("\\.vue\\'" . js2-mode)))
+  :mode (("\\.js\\'" . js2-mode)))
+
+(use-package vue-mode
+  :ensure t
+  :mode "\\.vue\\'"
+  :config
+  (add-hook 'vue-mode-hook #'lsp))
 
 ;; sdz80
 (add-to-list 'load-path "~/.emacs.d/vendors/sdz80-mode")
