@@ -44,7 +44,8 @@
       scroll-margin 4
       large-file-warning-threshold nil
       fill-column 100
-      compilation-read-command nil)
+      compilation-read-command nil
+      warning-minimum-level :emergency)
 
 (setq-default indent-tabs-mode nil)
 
@@ -67,8 +68,6 @@
       url-history-file (expand-file-name "url/history" user-emacs-directory)
       auto-save-list-file-prefix (expand-file-name "auto-save-list/.saves-" user-emacs-directory)
       projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" user-emacs-directory))
-
-
 
 ;; utf-8
 (prefer-coding-system 'utf-8)
@@ -158,7 +157,7 @@
   (setq undo-tree-history-directory-alist
         `((".*" . ,temporary-file-directory))
         undo-tree-enable-undo-in-region nil
-        undo-tree-auto-save-history t)
+        undo-tree-auto-save-history nil)
   (evil-leader/set-key
     "u" 'undo-tree-undo
     "au" 'undo-tree-visualize)
