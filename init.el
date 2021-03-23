@@ -41,6 +41,7 @@
       compilation-ask-about-save nil
       custom-file "~/.emacs.d/custom.el"
       c-basic-offset 4
+      tab-width 4
       scroll-margin 4
       large-file-warning-threshold nil
       fill-column 100
@@ -50,7 +51,6 @@
 (setq-default indent-tabs-mode nil)
 
 (if (eq system-type 'windows-nt)
-    ;; (set-frame-font "Roboto Mono 10" nil t)
     (set-frame-font "Consolas 11" nil t)
   (set-frame-font "Source Code Pro 11" nil t))
 
@@ -77,12 +77,10 @@
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
 ;; packages
-(load-theme 'tango t)
-
 (use-package doom-themes
   :ensure t
   :config
-  (load-theme 'doom-acario-light t))
+  (load-theme 'doom-one-light t))
 
 (use-package counsel
   :ensure t)
