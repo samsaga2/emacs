@@ -1,0 +1,12 @@
+custom.el
+recentf
+elpa
+.last-package-update-day
+auto-save-list/
+projectile-bookmarks.eld
+transient/
+eln-cache/
+.cache
+projectile.cache
+projects
+*session*
