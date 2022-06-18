@@ -22,7 +22,7 @@
 ;; load theme
 (if (eq 'system-type 'windows-nt)
     (set-frame-font "Cousine 11" nil t)
-  (set-face-font 'default "-unknown-DejaVu Sans Mono-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"))
+  (set-face-font 'default "-unknown-DejaVu Sans Mono-normal-normal-normal-*-19-*-*-*-m-0-iso10646-1"))
 (load-theme 'doom-acario-light t)
 (set-face-attribute 'fringe nil :background nil)
 
@@ -53,6 +53,17 @@
 (require 'selectrum)
 (selectrum-mode 1)
 (setq selectrum-prescient-mode 1
-        prescient-persist-mode 1)
+      prescient-persist-mode 1)
+
+;; ivy
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t
+      ivy-count-format "(%d/%d) "
+      enable-recursive-minibuffers t
+      ivy-initial-inputs-alist nil)
+
+(setq ivy-re-builders-alist
+      '((swiper . ivy--regex-plus)
+        (t . ivy--regex-fuzzy))) ;; enable fuzzy searching everywhere except for Swiper
 
 (provide 'my-editor)

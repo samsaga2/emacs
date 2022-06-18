@@ -21,7 +21,7 @@
 (sp--update-override-key-bindings)
 
 ;; change the compilation buffer height
-(setq compilation-window-height 10)
+(setq compilation-window-height 15)
 
 (defun create-proper-compilation-window ()
   "Setup the *compilation* window with custom settings."

@@ -1,6 +1,7 @@
 ;; ctrl-u does page up scroll
 (setq evil-want-C-u-scroll t
-      evil-want-keybinding nil)
+      evil-want-keybinding nil
+      evil-symbol-word-search t)
 
 ;; enable evil globally
 (evil-mode 1)
@@ -29,6 +30,7 @@
   (save-some-buffers t))
 
 (evil-leader/set-key
+  "ff" 'counsel-find-file
   "be" 'val-buffer
   "bb" 'switch-to-buffer
   "bd" 'kill-current-buffer
