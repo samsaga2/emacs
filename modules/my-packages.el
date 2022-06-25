@@ -14,6 +14,7 @@
   '(bm
     cider
     cider-eval-sexp-fu
+    clang-format
     clj-refactor
     clojure-mode
     cmake-mode

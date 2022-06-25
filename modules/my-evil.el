@@ -37,6 +37,8 @@
   "bp" 'switch-to-prev-buffer
   "bn" 'switch-to-next-buffer
   "br" 'counsel-recentf
+  "ff" 'clang-format-buffer
+  "fr" 'clang-format-region
   "ss" 'save-buffer
   "sa" 'save-all
   "eb" 'eval-buffer
